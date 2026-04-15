@@ -30,14 +30,14 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # First install the dependencies (as they change less often)
-COPY .gitignore .gitignore
+COPY --from=builder /app/.gitignore ./.gitignore
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN corepack enable pnpm
 
 # Copy full directory structure before fetch to ensure all package.json files are available
 COPY --from=builder /app/out/full/ .
-COPY turbo.json turbo.json
+COPY --from=builder /app/turbo.json ./turbo.json
 
 # Fetch dependencies to cache store, then install offline with dev deps (eliminated by miralriodev 14042026)
 # Instalar dependencias sin el caché avanzado para compatibilidad con Railway
