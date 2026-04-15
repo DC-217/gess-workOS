@@ -6,42 +6,41 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# 1. Copiamos el monorepo (los 1226 archivos que ya stageaste)
+# 1. Copiamos TODO
 COPY . .
 
-# 2. SCRIPT DE RESCATE: Limpieza de dependencias y catálogos
+# 2. SCRIPT DE DESTRUCCIÓN DE MONOREPO: 
+# Movemos las librerías a la raíz de la app web y borramos las menciones a @plane
 RUN node -e "const fs=require('fs'); \
-    const fix = (p) => { \
-    if (!fs.existsSync(p)) return; \
-    const pkg = JSON.parse(fs.readFileSync(p, 'utf-8')); \
+    const fixPkg = (path) => { \
+    if (!fs.existsSync(path)) return; \
+    const pkg = JSON.parse(fs.readFileSync(path, 'utf-8')); \
     const clean = (deps) => { \
     if (!deps) return; \
-    for (let d in deps) { if (deps[d].includes('catalog:') || deps[d].includes('workspace:')) deps[d] = '*'; } \
+    for (let d in deps) { \
+    if (deps[d].includes('catalog:') || deps[d].includes('workspace:') || d.startsWith('@plane/')) { \
+    delete deps[d]; \
+    } \
+    } \
     }; \
     clean(pkg.dependencies); clean(pkg.devDependencies); \
-    fs.writeFileSync(p, JSON.stringify(pkg, null, 2)); \
+    fs.writeFileSync(path, JSON.stringify(pkg, null, 2)); \
     }; \
-    fix('package.json'); fix('apps/web/package.json');"
+    fixPkg('package.json'); \
+    fixPkg('apps/web/package.json');"
 
-# 3. Instalación
+# 3. Instalación limpia de la WEB únicamente
+WORKDIR /app/apps/web
 RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
-# 4. Asegurar TSConfig para React-Router
-RUN if [ -f apps/web/tsconfig.json ]; then cp apps/web/tsconfig.json ./tsconfig.json; fi
+# 4. Intentamos compilar. 
+# Si falla por falta de imports de @plane, sabremos que el código es inseparable.
+RUN pnpm run build
 
-# 5. Build forzada (Intentamos turbo, si falla, entramos a la carpeta)
-RUN pnpm turbo run build --filter=web || (cd apps/web && pnpm run build)
-
-# --- NGINX: Servir la aplicación ---
+# --- NGINX ---
 FROM nginx:1.27-alpine AS production
 WORKDIR /usr/share/nginx/html
-
-# Copiamos desde la ruta probable de build (usamos un comodín para evitar errores)
 COPY --from=builder /app/apps/web/build/client/. ./
-# Si el proyecto usa 'dist' en lugar de 'build/client', descomenta la línea de abajo y comenta la de arriba
-# COPY --from=builder /app/apps/web/dist/. ./
-
 RUN echo 'server { listen 3000; location / { root /usr/share/nginx/html; try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
-
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
