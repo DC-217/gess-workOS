@@ -21,7 +21,7 @@ COPY . .
 # BYPASS: Limpiar el string de packageManager para que Turbo 2.9.4 lo pueda leer
 RUN node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); pkg.packageManager='pnpm@10.32.1'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
 
-RUN turbo prune --scope=web --docker
+RUN turbo prune web --docker
 
 # *****************************************************************************
 # STAGE 2: Install dependencies & build the project
