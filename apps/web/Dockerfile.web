@@ -6,7 +6,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 # *****************************************************************************
-# STAGE 1: Build the project
+# STAGE 1: Install & Build (SIN TURBO PRUNE)
 # *****************************************************************************
 FROM base AS builder
 RUN apk add --no-cache libc6-compat
@@ -14,28 +14,14 @@ WORKDIR /app
 
 ARG TURBO_VERSION=2.9.4
 RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
+
+# 1. Copiamos ABSOLUTAMENTE TODO de un solo golpe
 COPY . .
 
-RUN turbo prune web --docker
+# 2. Instalamos usando el lockfile sano que generaste en el paso anterior
+RUN pnpm install --frozen-lockfile
 
-# *****************************************************************************
-# STAGE 2: Install dependencies & build the project
-# *****************************************************************************
-FROM base AS installer
-
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-COPY --from=builder /app/.gitignore ./.gitignore
-COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN corepack enable pnpm
-
-COPY --from=builder /app/out/full/ .
-COPY --from=builder /app/turbo.json ./turbo.json
-
-RUN CI=true pnpm install --frozen-lockfile
-
+# 3. Variables de entorno necesarias
 ARG VITE_API_BASE_URL=""
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ARG VITE_ADMIN_BASE_URL=""
@@ -56,10 +42,11 @@ ENV VITE_WEB_BASE_URL=$VITE_WEB_BASE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV TURBO_TELEMETRY_DISABLED=1
 
+# 4. Compilamos tu frontend directamente
 RUN pnpm turbo run build --filter=web
 
 # *****************************************************************************
-# STAGE 3: Serve with nginx
+# STAGE 2: Serve with Nginx
 # *****************************************************************************
 FROM nginx:1.27-alpine AS production
 
@@ -79,7 +66,8 @@ http {
 }
 EOF
 
-COPY --from=installer /app/apps/web/build/client /usr/share/nginx/html
+# Copiamos el resultado de la compilación
+COPY --from=builder /app/apps/web/build/client /usr/share/nginx/html
 
 EXPOSE 3000
 
