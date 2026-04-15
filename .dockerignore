@@ -1,17 +1,12 @@
-# Ignorar dependencias locales
-node_modules
-**/node_modules
-
-# Ignorar carpetas de build locales
-.next
-dist
-build
-out
-
-# NO IGNORAR estas carpetas (Lista blanca forzada)
+# Permitir todo por defecto
 !apps
 !packages
 !package.json
 !pnpm-workspace.yaml
 !pnpm-lock.yaml
 !turbo.json
+
+# Solo ignorar lo pesado
+node_modules
+**/node_modules
+.git

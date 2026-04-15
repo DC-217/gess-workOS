@@ -10,11 +10,13 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Forzamos que se ignore el .dockerignore para las carpetas críticas
+
 COPY . .
 
-RUN ls -R apps && node -e "const fs=require('fs'); const path=require('path'); \
+
+RUN node -e "const fs=require('fs'); const path=require('path'); \
     const walk = (dir) => { \
+    if (!fs.existsSync(dir)) return; \
     let files = fs.readdirSync(dir); \
     files.forEach(file => { \
     let name = path.join(dir, file); \
@@ -25,7 +27,7 @@ RUN ls -R apps && node -e "const fs=require('fs'); const path=require('path'); \
     let changed = false; \
     const fix = (deps) => { \
     if (!deps) return; \
-    for (let d in deps) { if (deps[d].includes('catalog:')) { deps[d] = '*'; changed = true; } } \
+    for (let d in deps) { if (deps[d] && deps[d].includes('catalog:')) { deps[d] = '*'; changed = true; } } \
     }; \
     fix(pkg.dependencies); fix(pkg.devDependencies); \
     if (changed || name === 'package.json') { \
