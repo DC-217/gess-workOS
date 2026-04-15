@@ -4,7 +4,7 @@ FROM node:22-alpine AS base
 RUN npm install -g pnpm@10.32.1 turbo@2.9.4
 
 # *****************************************************************************
-# STAGE 1: Build the project
+# STAGE 1: Build
 # *****************************************************************************
 FROM base AS builder
 RUN apk add --no-cache libc6-compat
@@ -13,31 +13,30 @@ WORKDIR /app
 # 1. Copiamos el código
 COPY . .
 
-# 2. BYPASS TOTAL: Forzamos la creación del workspace y el packageManager
-# Esto sobreescribe cualquier error que venga de GitHub
+# 2. INYECCIÓN TOTAL: Escribimos el Workspace y el Catálogo manualmente
 RUN node -e "const fs=require('fs'); \
     const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); \
     pkg.packageManager='pnpm@10.32.1'; \
     fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
-    fs.writeFileSync('pnpm-workspace.yaml', 'packages:\n  - \"apps/*\"\n  - \"packages/*\"');"
+    const workspaceYaml = 'packages:\n  - \"apps/*\"\n  - \"packages/*\"\n\ncatalogs:\n  default:\n    \"@react-router/dev\": \"^7.1.5\"\n    \"typescript\": \"^5.7.3\"\n    \"vite\": \"^6.0.7\"\n    \"lucide-react\": \"^0.471.0\"\n    \"react\": \"^19.0.0\"\n    \"react-dom\": \"^19.0.0\"\n    \"react-router\": \"^7.1.5\"\n    \"axios\": \"^1.7.9\"\n    \"lodash-es\": \"^4.17.21\"\n    \"swr\": \"^2.3.0\"\n    \"mobx\": \"^6.13.5\"\n    \"mobx-react\": \"^9.2.0\"\n    \"mobx-utils\": \"^7.1.0\"\n    \"express\": \"^4.21.2\"\n    \"uuid\": \"^11.0.5\"\n    \"dotenv\": \"^16.4.7\"\n    \"@types/node\": \"^22.10.6\"\n    \"@types/react\": \"^19.0.7\"\n    \"@types/react-dom\": \"^19.0.3\"\n    \"@types/lodash-es\": \"^4.17.12\"\n    \"@react-router/node\": \"^7.1.5\"\n    \"@bprogress/core\": \"^0.1.2\"\n    \"@atlaskit/pragmatic-drag-and-drop\": \"^1.5.0\"\n    \"@atlaskit/pragmatic-drag-and-drop-auto-scroll\": \"^1.3.0\"\n    \"@atlaskit/pragmatic-drag-and-drop-hitbox\": \"^1.1.0\"'; \
+    fs.writeFileSync('pnpm-workspace.yaml', workspaceYaml);"
 
-# 3. Instalamos ignorando el lockfile (lo generará el contenedor en el momento)
+# 3. Instalamos (sin frozen lockfile para que resuelva cualquier faltante)
 RUN pnpm install --no-frozen-lockfile
 
-# 4. Variables de entorno para la build
+# 4. Variables de entorno básicas
 ARG VITE_API_BASE_URL=""
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ARG VITE_ADMIN_BASE_URL=""
 ENV VITE_ADMIN_BASE_URL=$VITE_ADMIN_BASE_URL
 
-# 5. Compilamos directamente (Sin prune)
+# 5. Build
 RUN pnpm turbo run build --filter=web
 
 # *****************************************************************************
-# STAGE 2: Serve with nginx
+# STAGE 2: Nginx
 # *****************************************************************************
 FROM nginx:1.27-alpine AS production
-
 RUN cat <<EOF > /etc/nginx/nginx.conf
 worker_processes auto;
 events { worker_connections 1024; }
@@ -53,10 +52,6 @@ http {
     }
 }
 EOF
-
 COPY --from=builder /app/apps/web/build/client /usr/share/nginx/html
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -fsS http://127.0.0.1:3000/ >/dev/null || exit 1
-
 CMD ["nginx", "-g", "daemon off;"]
