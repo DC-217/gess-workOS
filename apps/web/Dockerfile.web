@@ -13,22 +13,34 @@ WORKDIR /app
 # Forzamos que se ignore el .dockerignore para las carpetas críticas
 COPY . .
 
-# BYPASS TOTAL: Eliminamos la dependencia de "catalogs" convirtiendo todo a versiones dinámicas
-RUN node -e "const fs=require('fs'); \
-    const pkgPath = 'apps/web/package.json'; \
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')); \
+# BYPASS TOTAL: Limpiamos TODOS los package.json del monorepo de forma recursiva
+RUN node -e "const fs=require('fs'); const path=require('path'); \
+    const walk = (dir) => { \
+    let files = fs.readdirSync(dir); \
+    files.forEach(file => { \
+    let name = path.join(dir, file); \
+    if (fs.statSync(name).isDirectory()) { \
+    if (file !== 'node_modules' && file !== '.git') walk(name); \
+    } else if (file === 'package.json') { \
+    let pkg = JSON.parse(fs.readFileSync(name, 'utf-8')); \
+    let changed = false; \
     const fix = (deps) => { \
     if (!deps) return; \
-    for (let d in deps) { if (deps[d].includes('catalog:')) deps[d] = '*'; } \
+    for (let d in deps) { if (deps[d].includes('catalog:')) { deps[d] = '*'; changed = true; } } \
     }; \
     fix(pkg.dependencies); fix(pkg.devDependencies); \
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2)); \
-    const rootPkg = JSON.parse(fs.readFileSync('package.json', 'utf-8')); \
-    rootPkg.packageManager = 'pnpm@10.32.1'; \
-    fs.writeFileSync('package.json', JSON.stringify(rootPkg, null, 2)); \
+    if (changed || name === 'package.json') { \
+    if (name === 'package.json') pkg.packageManager = 'pnpm@10.32.1'; \
+    fs.writeFileSync(name, JSON.stringify(pkg, null, 2)); \
+    console.log('Fixed: ' + name); \
+    } \
+    } \
+    }); \
+    }; \
+    walk('.'); \
     fs.writeFileSync('pnpm-workspace.yaml', 'packages:\n  - \"apps/*\"\n  - \"packages/*\"');"
 
-# Instalamos (Ahora ya no hay catalogs que lo detengan)
+# Ahora sí, instalamos sin miedo
 RUN pnpm install --no-frozen-lockfile
 
 # Variables de entorno
