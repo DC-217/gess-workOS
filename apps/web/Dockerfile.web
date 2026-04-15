@@ -10,6 +10,8 @@ RUN corepack enable
 # *****************************************************************************
 FROM base AS builder
 RUN apk add --no-cache libc6-compat
+
+# Forzando reconstrucción total
 WORKDIR /app
 
 ARG TURBO_VERSION=2.9.4
