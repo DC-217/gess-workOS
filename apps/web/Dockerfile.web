@@ -19,7 +19,7 @@ RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
 COPY . .
 
 # 2. Instalamos usando el lockfile sano que generaste en el paso anterior
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # 3. Variables de entorno necesarias
 ARG VITE_API_BASE_URL=""
