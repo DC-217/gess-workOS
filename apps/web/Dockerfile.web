@@ -13,15 +13,22 @@ WORKDIR /app
 # Forzamos que se ignore el .dockerignore para las carpetas críticas
 COPY . .
 
-# BYPASS TOTAL: Inyectamos el packageManager Y el pnpm-workspace con sus catálogos en una sola línea limpia
+# BYPASS TOTAL: Eliminamos la dependencia de "catalogs" convirtiendo todo a versiones dinámicas
 RUN node -e "const fs=require('fs'); \
-    const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); \
-    pkg.packageManager='pnpm@10.32.1'; \
-    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
-    const ws = 'packages:\n  - \'apps/*\'\n  - \'packages/*\'\n\ncatalogs:\n  default:\n    \'@react-router/dev\': \'^7.1.5\'\n    \'typescript\': \'^5.7.3\'\n    \'vite\': \'^6.0.7\''; \
-    fs.writeFileSync('pnpm-workspace.yaml', ws);"
+    const pkgPath = 'apps/web/package.json'; \
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')); \
+    const fix = (deps) => { \
+    if (!deps) return; \
+    for (let d in deps) { if (deps[d].includes('catalog:')) deps[d] = '*'; } \
+    }; \
+    fix(pkg.dependencies); fix(pkg.devDependencies); \
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2)); \
+    const rootPkg = JSON.parse(fs.readFileSync('package.json', 'utf-8')); \
+    rootPkg.packageManager = 'pnpm@10.32.1'; \
+    fs.writeFileSync('package.json', JSON.stringify(rootPkg, null, 2)); \
+    fs.writeFileSync('pnpm-workspace.yaml', 'packages:\n  - \"apps/*\"\n  - \"packages/*\"');"
 
-# Instalamos (Usando la fuerza)
+# Instalamos (Ahora ya no hay catalogs que lo detengan)
 RUN pnpm install --no-frozen-lockfile
 
 # Variables de entorno
