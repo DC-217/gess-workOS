@@ -13,13 +13,15 @@ WORKDIR /app
 # Forzamos que se ignore el .dockerignore para las carpetas críticas
 COPY . .
 
-# BYPASS: Solo arreglamos el packageManager para evitar el bug de Turbo
+# BYPASS TOTAL: Inyectamos el packageManager Y el pnpm-workspace con sus catálogos en una sola línea limpia
 RUN node -e "const fs=require('fs'); \
     const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); \
     pkg.packageManager='pnpm@10.32.1'; \
-    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
+    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
+    const ws = 'packages:\n  - \'apps/*\'\n  - \'packages/*\'\n\ncatalogs:\n  default:\n    \'@react-router/dev\': \'^7.1.5\'\n    \'typescript\': \'^5.7.3\'\n    \'vite\': \'^6.0.7\''; \
+    fs.writeFileSync('pnpm-workspace.yaml', ws);"
 
-# Instalamos. Si falla aquí, es porque la carpeta packages/ no se subió a Git.
+# Instalamos (Usando la fuerza)
 RUN pnpm install --no-frozen-lockfile
 
 # Variables de entorno
