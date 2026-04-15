@@ -13,8 +13,7 @@ WORKDIR /app
 # Forzamos que se ignore el .dockerignore para las carpetas críticas
 COPY . .
 
-# BYPASS TOTAL: Limpiamos TODOS los package.json del monorepo de forma recursiva
-RUN node -e "const fs=require('fs'); const path=require('path'); \
+RUN ls -R apps && node -e "const fs=require('fs'); const path=require('path'); \
     const walk = (dir) => { \
     let files = fs.readdirSync(dir); \
     files.forEach(file => { \
@@ -40,7 +39,6 @@ RUN node -e "const fs=require('fs'); const path=require('path'); \
     walk('.'); \
     fs.writeFileSync('pnpm-workspace.yaml', 'packages:\n  - \"apps/*\"\n  - \"packages/*\"');"
 
-# Ahora sí, instalamos sin miedo
 RUN pnpm install --no-frozen-lockfile
 
 # Variables de entorno
