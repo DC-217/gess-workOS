@@ -10,27 +10,25 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# 1. Copiamos el código
+# Forzamos que se ignore el .dockerignore para las carpetas críticas
 COPY . .
 
-# 2. INYECCIÓN TOTAL: Escribimos el Workspace y el Catálogo manualmente
+# BYPASS: Solo arreglamos el packageManager para evitar el bug de Turbo
 RUN node -e "const fs=require('fs'); \
     const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); \
     pkg.packageManager='pnpm@10.32.1'; \
-    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
-    const workspaceYaml = 'packages:\n  - \"apps/*\"\n  - \"packages/*\"\n\ncatalogs:\n  default:\n    \"@react-router/dev\": \"^7.1.5\"\n    \"typescript\": \"^5.7.3\"\n    \"vite\": \"^6.0.7\"\n    \"lucide-react\": \"^0.471.0\"\n    \"react\": \"^19.0.0\"\n    \"react-dom\": \"^19.0.0\"\n    \"react-router\": \"^7.1.5\"\n    \"axios\": \"^1.7.9\"\n    \"lodash-es\": \"^4.17.21\"\n    \"swr\": \"^2.3.0\"\n    \"mobx\": \"^6.13.5\"\n    \"mobx-react\": \"^9.2.0\"\n    \"mobx-utils\": \"^7.1.0\"\n    \"express\": \"^4.21.2\"\n    \"uuid\": \"^11.0.5\"\n    \"dotenv\": \"^16.4.7\"\n    \"@types/node\": \"^22.10.6\"\n    \"@types/react\": \"^19.0.7\"\n    \"@types/react-dom\": \"^19.0.3\"\n    \"@types/lodash-es\": \"^4.17.12\"\n    \"@react-router/node\": \"^7.1.5\"\n    \"@bprogress/core\": \"^0.1.2\"\n    \"@atlaskit/pragmatic-drag-and-drop\": \"^1.5.0\"\n    \"@atlaskit/pragmatic-drag-and-drop-auto-scroll\": \"^1.3.0\"\n    \"@atlaskit/pragmatic-drag-and-drop-hitbox\": \"^1.1.0\"'; \
-    fs.writeFileSync('pnpm-workspace.yaml', workspaceYaml);"
+    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
 
-# 3. Instalamos (sin frozen lockfile para que resuelva cualquier faltante)
+# Instalamos. Si falla aquí, es porque la carpeta packages/ no se subió a Git.
 RUN pnpm install --no-frozen-lockfile
 
-# 4. Variables de entorno básicas
+# Variables de entorno
 ARG VITE_API_BASE_URL=""
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ARG VITE_ADMIN_BASE_URL=""
 ENV VITE_ADMIN_BASE_URL=$VITE_ADMIN_BASE_URL
 
-# 5. Build
+# Build
 RUN pnpm turbo run build --filter=web
 
 # *****************************************************************************
@@ -43,12 +41,8 @@ events { worker_connections 1024; }
 http {
     include mime.types;
     server {
-        listen 3000;
-        root /usr/share/nginx/html;
-        index index.html;
-        location / {
-            try_files \$uri \$uri/ /index.html;
-        }
+        listen 3000; root /usr/share/nginx/html; index index.html;
+        location / { try_files \$uri \$uri/ /index.html; }
     }
 }
 EOF
