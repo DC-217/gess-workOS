@@ -18,6 +18,9 @@ ARG TURBO_VERSION=2.9.4
 RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
 COPY . .
 
+# BYPASS: Inyectar packageManager a la fuerza antes de que turbo falle (by miralhu 15042026)
+RUN sed -i 's/"name": "plane"/"name": "plane",\n  "packageManager": "pnpm@8.15.8"/' package.json
+
 RUN turbo prune --scope=web --docker
 
 # *****************************************************************************
