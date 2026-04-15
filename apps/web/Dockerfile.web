@@ -6,43 +6,40 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# 1. Copiamos TODO el monorepo (ahora que Railway verá la raíz)
+# 1. Copiamos todo el monorepo
 COPY . .
 
-# 2. SCRIPT DE CURACIÓN: Preparamos el entorno para Turbo y pnpm
+# 2. SCRIPT DE COMPATIBILIDAD: Solo quitamos "catalog:" y "workspace:" 
+# para que pnpm use las carpetas físicas que ya subiste.
 RUN node -e "const fs=require('fs'); \
     const fix = (p) => { \
-    if (!fs.existsSync(p)) return null; \
+    if (!fs.existsSync(p)) return; \
     const pkg = JSON.parse(fs.readFileSync(p, 'utf-8')); \
     const clean = (deps) => { \
     if (!deps) return; \
-    for (let d in deps) { if (d.startsWith('@plane/') || deps[d].includes('catalog:') || deps[d].includes('workspace:')) delete deps[d]; } \
+    for (let d in deps) { \
+    if (deps[d].includes('catalog:')) deps[d] = '*'; \
+    if (deps[d].includes('workspace:')) deps[d] = 'workspace:*'; \
+    } \
     }; \
     clean(pkg.dependencies); clean(pkg.devDependencies); \
-    return pkg; \
+    pkg.packageManager = 'pnpm@10.32.1'; \
+    fs.writeFileSync(p, JSON.stringify(pkg, null, 2)); \
     }; \
-    const rootPkg = fix('package.json'); \
-    if (rootPkg) { \
-    rootPkg.packageManager = 'pnpm@10.32.1'; \
-    fs.writeFileSync('package.json', JSON.stringify(rootPkg, null, 2)); \
-    } \
-    const webPkg = fix('apps/web/package.json'); \
-    if (webPkg) fs.writeFileSync('apps/web/package.json', JSON.stringify(webPkg, null, 2)); \
-    if (!fs.existsSync('turbo.json')) fs.writeFileSync('turbo.json', JSON.stringify({pipeline:{build:{outputs:['dist/**','build/**']}}}));"
+    fix('package.json'); \
+    fix('apps/web/package.json'); \
+    fs.writeFileSync('pnpm-workspace.yaml', 'packages:\n  - \"apps/web\"\n  - \"packages/*\"');"
 
-# 3. Instalación
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+# 3. Instalación: Ahora encontrará las carpetas de 'packages/'
+RUN pnpm install --no-frozen-lockfile
 
-# 4. Build: Usamos el comando directo de la web para evitar líos de Turbo
-WORKDIR /app/apps/web
-RUN pnpm run build
+# 4. Build: Usamos Turbo ahora que todo está en su lugar
+RUN pnpm turbo run build --filter=web
 
-# --- NGINX: Servir la aplicación ---
+# --- NGINX ---
 FROM nginx:1.27-alpine AS production
-WORKDIR /usr/share/nginx/html
-
-# Copiamos desde la carpeta de salida (en Plane suele ser build/client)
-COPY --from=builder /app/apps/web/build/client/. ./
+# Copiamos la salida de la build (verifica si es 'dist' o 'build/client')
+COPY --from=builder /app/apps/web/build/client /usr/share/nginx/html
 
 RUN echo 'server { listen 3000; location / { root /usr/share/nginx/html; try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
 
