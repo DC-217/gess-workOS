@@ -18,9 +18,6 @@ ARG TURBO_VERSION=2.9.4
 RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
 COPY . .
 
-# BYPASS: Inyectar packageManager a la fuerza antes de que turbo falle (by miralhu 15042026)
-RUN sed -i 's/"name": "plane"/"name": "plane",\n  "packageManager": "pnpm@8.15.8"/' package.json
-
 RUN turbo prune --scope=web --docker
 
 # *****************************************************************************
@@ -101,6 +98,6 @@ COPY --from=installer /app/apps/web/build/client /usr/share/nginx/html
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:3000/ >/dev/null || exit 1
+    CMD curl -fsS http://127.0.0.1:3000/ >/dev/null || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
