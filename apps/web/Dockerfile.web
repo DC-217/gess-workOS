@@ -18,6 +18,10 @@ ARG TURBO_VERSION=2.9.4
 RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
 COPY . .
 
+# INYECCIÓN NATIVA: Configuramos el packageManager y el workspace programáticamente
+RUN npm pkg set packageManager="pnpm@10.32.1"
+RUN printf "packages:\n  - 'apps/*'\n  - 'packages/*'\n" > pnpm-workspace.yaml
+
 RUN turbo prune web --docker
 
 # *****************************************************************************
