@@ -48,17 +48,18 @@ FROM nginx:1.27-alpine AS production
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/apps/web/build/client/. ./
 
-# Creamos el config de Nginx de forma limpia
+# Configuramos Nginx de la forma más compatible posible
 RUN echo 'server { \
     listen 3000; \
-    location /api/ { \
-    proxy_pass https://gess-workos-api-production.up.railway.app/api/; \
+    # Regla limpia: lo que entre por /api se va directo a la API \
+    location /api { \
+    proxy_pass https://gess-workos-api-production.up.railway.app; \
     proxy_set_header Host gess-workos-api-production.up.railway.app; \
     proxy_set_header X-Real-IP $remote_addr; \
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
     proxy_set_header X-Forwarded-Proto https; \
     proxy_ssl_server_name on; \
-    proxy_ssl_session_reuse off; \
+    proxy_ssl_session_reuse off; \n\
     } \
     location / { \
     root /usr/share/nginx/html; \
