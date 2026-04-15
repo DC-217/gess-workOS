@@ -18,8 +18,8 @@ ARG TURBO_VERSION=2.9.4
 RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
 COPY . .
 
-# BYPASS: Limpiar el string de packageManager para que Turbo 2.9.4 lo pueda leer
-RUN node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); pkg.packageManager='pnpm@10.32.1'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
+# BYPASS: Limpiar packageManager y forzar workspaces en package.json para que Turbo 2.9.4 los encuentre
+RUN node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json', 'utf-8')); pkg.packageManager='pnpm@10.32.1'; pkg.workspaces=['apps/*', 'packages/*']; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
 
 RUN turbo prune web --docker
 
