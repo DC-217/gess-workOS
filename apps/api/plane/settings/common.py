@@ -316,7 +316,10 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_ENGINE = "plane.db.models.session"
 SESSION_COOKIE_AGE = int(os.environ.get("SESSION_COOKIE_AGE", 604800))
 SESSION_COOKIE_NAME = os.environ.get("SESSION_COOKIE_NAME", "session-id")
-SESSION_COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", None)
+# COOKIE_DOMAIN also falls back to CSRF_COOKIE_DOMAIN (Railway variable set by user)
+_cookie_domain = os.environ.get("COOKIE_DOMAIN", None) or os.environ.get("CSRF_COOKIE_DOMAIN", None)
+SESSION_COOKIE_DOMAIN = _cookie_domain
+SESSION_COOKIE_SAMESITE = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
 SESSION_SAVE_EVERY_REQUEST = os.environ.get("SESSION_SAVE_EVERY_REQUEST", "0") == "1"
 
 # Admin Cookie
@@ -327,7 +330,8 @@ ADMIN_SESSION_COOKIE_AGE = int(os.environ.get("ADMIN_SESSION_COOKIE_AGE", 3600))
 CSRF_COOKIE_SECURE = secure_origins
 CSRF_COOKIE_HTTPONLY = True
 CSRF_TRUSTED_ORIGINS = cors_allowed_origins
-CSRF_COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", None)
+CSRF_COOKIE_DOMAIN = _cookie_domain
+CSRF_COOKIE_SAMESITE = os.environ.get("CSRF_COOKIE_SAMESITE", "Lax")
 CSRF_FAILURE_VIEW = "plane.authentication.views.common.csrf_failure"
 
 ######  Base URLs ######
