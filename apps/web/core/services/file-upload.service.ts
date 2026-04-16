@@ -22,9 +22,16 @@ export class FileUploadService extends APIService {
     uploadProgressHandler?: AxiosRequestConfig["onUploadProgress"]
   ): Promise<void> {
     this.cancelSource = axios.CancelToken.source();
-    return this.post(url, data, {
+    
+    const isPut = data.has("_method") && data.get("_method") === "PUT";
+    const requestMethod = isPut ? "put" : "post";
+    // For PUT (Cloudflare R2), we send the raw File blob, not FormData. The helper appended it as 'file'
+    const requestData = isPut ? data.get("file") : data;
+    const contentType = isPut ? (data.get("Content-Type") || "application/octet-stream") : "multipart/form-data";
+
+    return this[requestMethod](url, requestData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": contentType as string,
       },
       cancelToken: this.cancelSource.token,
       withCredentials: false,
