@@ -109,6 +109,8 @@ services:
     container_name: plane-db
     image: postgres:15.7-alpine
     restart: always
+    ports:
+      - "5433:5432"
     command: postgres -c 'max_connections=1000'
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -124,6 +126,8 @@ services:
     container_name: plane-redis
     image: valkey/valkey:7.2.11-alpine
     restart: always
+    ports:
+      - "6379:6379"
     volumes:
       - redisdata:/data
 
@@ -169,6 +173,14 @@ services:
       - api
       - space
       - admin
+
+  plane-mailservice:
+    container_name: plane-mailservice
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # UI Dashboard
 
 volumes:
   pgdata:
