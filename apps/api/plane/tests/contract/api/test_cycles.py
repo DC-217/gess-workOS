@@ -19,6 +19,7 @@ def project(db, workspace, create_user):
         identifier="TP",
         workspace=workspace,
         created_by=create_user,
+        cycle_view=True,
     )
     ProjectMember.objects.create(
         project=project,
@@ -73,8 +74,11 @@ class TestCycleListCreateAPIEndpoint:
     def test_create_cycle_success(self, api_key_client, workspace, project, cycle_data):
         """Test successful cycle creation"""
         url = self.get_cycle_url(workspace.slug, project.id)
+        cycle_data["project_id"] = str(project.id)
 
         response = api_key_client.post(url, cycle_data, format="json")
+        if response.status_code != status.HTTP_201_CREATED:
+            print(f"\nDEBUG: Response data: {response.data}")
 
         assert response.status_code == status.HTTP_201_CREATED
 
@@ -124,6 +128,7 @@ class TestCycleListCreateAPIEndpoint:
             "description": "A cycle with external ID",
             "external_id": "ext-123",
             "external_source": "github",
+            "project_id": str(project.id),
         }
 
         response = api_key_client.post(url, cycle_data, format="json")
