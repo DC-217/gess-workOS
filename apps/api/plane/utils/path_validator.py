@@ -83,8 +83,11 @@ def validate_next_path(next_path: str) -> str:
     if parsed_url.scheme or parsed_url.netloc:
         next_path = parsed_url.path  # Extract only the path component
 
-    # Must start with a forward slash and not be empty
-    if not next_path or not next_path.startswith("/"):
+    # Must start with a forward slash. If not, prepend one.
+    if next_path and not next_path.startswith("/"):
+        next_path = f"/{next_path}"
+    
+    if not next_path:
         return ""
 
     # Prevent path traversal
