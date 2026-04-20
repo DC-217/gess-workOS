@@ -148,6 +148,7 @@ class TestS3StorageSignedURLExpiration:
         assert call_kwargs["Params"]["Bucket"] == "test-bucket"
         assert call_kwargs["Params"]["Key"] == "test-object"
         assert call_kwargs["Params"]["ContentType"] == "image/png"
+        assert call_kwargs["Params"]["ContentLength"] == 1024
         
         # Verify the returned object structure
         assert result["url"] == "https://r2-test-url.com"
