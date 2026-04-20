@@ -76,6 +76,7 @@ class S3Storage(S3Boto3Storage):
                         "Bucket": self.aws_storage_bucket_name,
                         "Key": object_name,
                         "ContentType": file_type,
+                        "ContentLength": file_size,
                     },
                     ExpiresIn=expiration,
                 )
