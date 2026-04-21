@@ -159,6 +159,7 @@ class TestCycleListCreateAPIEndpoint:
             "external_id": "ext-123",
             "external_source": "github",
             "owned_by": create_user.id,
+            "project_id": str(project.id),
         }
 
         response = api_key_client.post(url, cycle_data, format="json")

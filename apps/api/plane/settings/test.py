@@ -14,3 +14,7 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 INSTALLED_APPS.append(  # noqa
     "plane.tests"
 )
+
+# Eager mode for tests: run Celery tasks synchronously in memory
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
