@@ -22,7 +22,6 @@ import { ImagePickerPopover } from "@/components/core/image-picker-popover";
 import { ChangeEmailModal } from "@/components/core/modals/change-email-modal";
 import { UserImageUploadModal } from "@/components/core/modals/user-image-upload-modal";
 import { CoverImage } from "@/components/common/cover-image";
-import { SettingsBoxedControlItem } from "@/components/settings/boxed-control-item";
 // helpers
 import { handleCoverImageChange } from "@/helpers/cover-image.helper";
 // hooks
@@ -220,21 +219,22 @@ export const GeneralProfileSettingsForm = observer(function GeneralProfileSettin
             <div className="absolute -bottom-6 left-6 flex items-end justify-between">
               <div className="flex gap-3">
                 <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-surface-2">
-                  <button type="button" onClick={() => setIsImageUploadModalOpen(true)}>
+                  <button
+                    type="button"
+                    className="relative h-16 w-16 cursor-pointer overflow-hidden rounded-lg border-0 bg-transparent p-0"
+                    onClick={() => setIsImageUploadModalOpen(true)}
+                    aria-label="Upload profile picture"
+                  >
                     {!userAvatar || userAvatar === "" ? (
                       <div className="h-16 w-16 rounded-md bg-layer-1 p-2">
                         <CircleUserRound className="h-full w-full text-secondary" />
                       </div>
                     ) : (
-                      <div className="relative h-16 w-16 overflow-hidden">
-                        <img
-                          src={getFileURL(userAvatar)}
-                          className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
-                          onClick={() => setIsImageUploadModalOpen(true)}
-                          alt={currentUser?.display_name}
-                          role="button"
-                        />
-                      </div>
+                      <img
+                        src={getFileURL(userAvatar)}
+                        className="h-full w-full rounded-lg object-cover"
+                        alt={currentUser?.display_name}
+                      />
                     )}
                   </button>
                 </div>
@@ -400,17 +400,6 @@ export const GeneralProfileSettingsForm = observer(function GeneralProfileSettin
           </div>
         </div>
       </form>
-      <div className="mt-10">
-        <SettingsBoxedControlItem
-          title={t("deactivate_account")}
-          description={t("deactivate_account_description")}
-          control={
-            <Button variant="error-outline" onClick={() => setDeactivateAccountModal(true)}>
-              {t("deactivate_account")}
-            </Button>
-          }
-        />
-      </div>
     </>
   );
 });
