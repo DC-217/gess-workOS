@@ -133,11 +133,6 @@ export default function Root() {
 }
 
 export function HydrateFallback() {
-  const { resolvedTheme } = useTheme();
-
-  // if we are on the server or the theme is not resolved, return an empty div
-  if (typeof window === "undefined" || resolvedTheme === undefined) return <div />;
-
   return (
     <div className="relative flex h-screen w-full items-center justify-center bg-canvas">
       <LogoSpinner />

@@ -198,3 +198,75 @@
     0 0 4px --alpha(var(--background-color-accent-primary) / 40%) !important;
   will-change: transform, opacity;
 }
+
+/* Custom Auth Layout Overrides for Friday Rebranding */
+.auth-page-container input[type="email"],
+.auth-page-container input[type="password"],
+.auth-page-container input[type="text"],
+.auth-page-container .border-strong {
+  border: 1px solid #c1c2c6 !important;
+  border-radius: 8px !important;
+  height: 47px !important;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  color: #000000 !important;
+}
+
+.auth-page-container input::placeholder {
+  color: #9b9695 !important;
+}
+
+.auth-page-container label {
+  color: #000000 !important;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  display: block;
+}
+
+/* Submit and Action Buttons styling */
+.auth-page-container button[type="submit"],
+.auth-page-container button.bg-brand-500 {
+  background-color: #f67d5a !important;
+  border-radius: 8px !important;
+  height: 47px !important;
+  color: #ffffff !important;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  transition: background-color 0.2s ease-in-out !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.auth-page-container button[type="submit"]:hover:not(:disabled),
+.auth-page-container button.bg-brand-500:hover:not(:disabled) {
+  background-color: #e26e4b !important;
+}
+
+.auth-page-container button[type="submit"]:disabled,
+.auth-page-container button.bg-brand-500:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Auth forms structure */
+.auth-page-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Forgot password link styles centering and colors */
+.auth-page-container a[href*="forgot-password"] {
+  display: block;
+  text-align: center;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  color: #000000 !important;
+  margin-top: 10px;
+  text-decoration: none !important;
+}
