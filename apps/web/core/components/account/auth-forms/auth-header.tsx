@@ -27,30 +27,30 @@ type TAuthHeader = {
 const Titles = {
   [EAuthModes.SIGN_IN]: {
     [EAuthSteps.EMAIL]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Plane.",
+      header: "Registra tu cuenta.",
+      subHeader: "Para acceder a la administración de tus proyectos.",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Plane.",
+      header: "Registra tu cuenta.",
+      subHeader: "Para acceder a la administración de tus proyectos.",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Plane.",
+      header: "Registra tu cuenta.",
+      subHeader: "Para acceder a la administración de tus proyectos.",
     },
   },
   [EAuthModes.SIGN_UP]: {
     [EAuthSteps.EMAIL]: {
-      header: "Work in all dimensions.",
-      subHeader: "Create your Plane account.",
+      header: "Registra tu cuenta.",
+      subHeader: "Para acceder a la administración de tus proyectos.",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Work in all dimensions.",
-      subHeader: "Create your Plane account.",
+      header: "Registra tu cuenta.",
+      subHeader: "Para acceder a la administración de tus proyectos.",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Work in all dimensions.",
-      subHeader: "Create your Plane account.",
+      header: "Registra tu cuenta.",
+      subHeader: "Para acceder a la administración de tus proyectos.",
     },
   },
 };
@@ -74,11 +74,11 @@ export const AuthHeader = observer(function AuthHeader(props: TAuthHeader) {
   const getHeaderSubHeader = (
     step: EAuthSteps,
     mode: EAuthModes,
-    invitation: IWorkspaceMemberInvitation | undefined,
+    workspaceInvitation: IWorkspaceMemberInvitation | undefined,
     email: string | undefined
   ) => {
-    if (invitation && email && invitation.email === email && invitation.workspace) {
-      const workspace = invitation.workspace;
+    if (workspaceInvitation && email && workspaceInvitation.email === email && workspaceInvitation.workspace) {
+      const workspace = workspaceInvitation.workspace;
       return {
         header: (
           <div className="relative inline-flex items-center gap-2">
@@ -116,9 +116,27 @@ type TAuthHeaderBase = {
 
 export function AuthHeaderBase(props: TAuthHeaderBase) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-h4-semibold text-primary">{props.header}</span>
-      <span className="text-h4-semibold text-placeholder">{props.subHeader}</span>
+    <div className="font-sans flex flex-col gap-2 select-none">
+      {/* Friday logo above the header title */}
+      <div
+        className="mb-6 flex flex-col items-end self-start select-none"
+        style={{ width: "61.65px", height: "37.91px" }}
+      >
+        <div
+          className="rounded-full"
+          style={{
+            width: "14.4px",
+            height: "14.4px",
+            background: "linear-gradient(213.83deg, #FC9050 15.79%, #EB5E69 81.54%)",
+          }}
+        />
+        <span className="text-[24px] leading-none font-bold tracking-tight text-black" style={{ marginTop: "-2px" }}>
+          friday
+        </span>
+      </div>
+
+      <h1 className="text-[40px] leading-[104.73%] font-bold tracking-[-0.04em] text-black">{props.header}</h1>
+      <p className="text-[14px] leading-[104.73%] font-medium tracking-[-0.04em] text-[#9B9695]">{props.subHeader}</p>
     </div>
   );
 }
