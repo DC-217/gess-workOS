@@ -114,6 +114,11 @@ export const coreRoutes: RouteConfigEntry[] = [
           ),
         ]),
 
+        // Calendar
+        layout("./(all)/[workspaceSlug]/(projects)/calendar/layout.tsx", [
+          route(":workspaceSlug/calendar", "./(all)/[workspaceSlug]/(projects)/calendar/page.tsx"),
+        ]),
+
         // Archived Projects
         layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/archives/layout.tsx", [
           route(

@@ -31,7 +31,9 @@ export type CalendarStoreType =
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.TEAM
   | EIssuesStoreType.TEAM_VIEW
-  | EIssuesStoreType.EPIC;
+  | EIssuesStoreType.EPIC
+  | EIssuesStoreType.PROFILE
+  | EIssuesStoreType.GLOBAL;
 
 interface IBaseCalendarRoot {
   QuickActions: FC<IQuickActionProps>;
@@ -162,7 +164,7 @@ export const BaseCalendarRoot = observer(function BaseCalendarRoot(props: IBaseC
           issuesFilterStore={issuesFilter}
           issues={issueMap}
           groupedIssueIds={groupedIssueIds}
-          layout={displayFilters?.calendar?.layout}
+          layout={layout}
           showWeekends={displayFilters?.calendar?.show_weekends ?? false}
           issueCalendarView={issueCalendarView}
           quickActions={({ issue, parentRef, customActionButton, placement }) => (

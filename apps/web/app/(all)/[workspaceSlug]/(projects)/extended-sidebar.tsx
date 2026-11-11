@@ -45,7 +45,7 @@ export const ExtendedAppSidebar = observer(function ExtendedAppSidebar() {
         return {
           ...item,
           sort_order: preference?.sort_order ?? 0,
-          is_pinned: preference?.is_pinned ?? false,
+          is_pinned: preference?.is_pinned ?? (item.key === "calendar" || item.key === "views"),
         };
       })
       .sort((a, b) => {

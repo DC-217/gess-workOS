@@ -5,6 +5,7 @@
  */
 
 export default {
+  calendar: "Calendar",
   submit: "Submit",
   cancel: "Cancel",
   loading: "Loading",

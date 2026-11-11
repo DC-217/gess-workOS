@@ -100,7 +100,10 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
     const userFilters = this.getIssueFilters(viewId);
     if (!userFilters) return undefined;
 
-    const filteredParams = handleIssueQueryParamsByLayout(EIssueLayoutTypes.SPREADSHEET, "my_issues");
+    const filteredParams = handleIssueQueryParamsByLayout(
+      userFilters?.displayFilters?.layout || EIssueLayoutTypes.SPREADSHEET,
+      "my_issues"
+    );
     if (!filteredParams) return undefined;
 
     const filteredRouteParams: Partial<Record<TIssueParams, string | boolean>> = this.computedFilteredParams(
@@ -113,12 +116,12 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
   };
 
   get issueFilters() {
-    const viewId = this.rootIssueStore.globalViewId;
+    const viewId = this.rootIssueStore.globalViewId || "all-issues";
     return this.getIssueFilters(viewId);
   }
 
   get appliedFilters() {
-    const viewId = this.rootIssueStore.globalViewId;
+    const viewId = this.rootIssueStore.globalViewId || "all-issues";
     return this.getAppliedFilters(viewId);
   }
 

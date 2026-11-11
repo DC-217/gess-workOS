@@ -677,18 +677,20 @@ const useGlobalIssueActions = () => {
   const { issues, issuesFilter } = useIssues(EIssuesStoreType.GLOBAL);
 
   const fetchIssues = useCallback(
-    async (loadType: TLoader, options: IssuePaginationOptions) => {
-      if (!workspaceSlug || !globalViewId) return;
-      return issues.fetchIssues(workspaceSlug.toString(), globalViewId.toString(), loadType, options);
+    async (loadType: TLoader, options: IssuePaginationOptions, viewId?: string) => {
+      const activeViewId = viewId || globalViewId || "all-issues";
+      if (!workspaceSlug) return;
+      return issues.fetchIssues(workspaceSlug.toString(), activeViewId.toString(), loadType, options);
     },
     [issues.fetchIssues, workspaceSlug, globalViewId]
   );
   const fetchNextIssues = useCallback(
-    async (groupId?: string, subGroupId?: string) => {
-      if (!workspaceSlug || !globalViewId) return;
-      return issues.fetchNextIssues(workspaceSlug.toString(), globalViewId.toString(), groupId, subGroupId);
+    async (groupId?: string, subGroupId?: string, viewId?: string) => {
+      const activeViewId = viewId || globalViewId || "all-issues";
+      if (!workspaceSlug) return;
+      return issues.fetchNextIssues(workspaceSlug.toString(), activeViewId.toString(), groupId, subGroupId);
     },
-    [issues.fetchIssues, workspaceSlug, globalViewId]
+    [issues.fetchNextIssues, workspaceSlug, globalViewId]
   );
 
   const createIssue = useCallback(
@@ -715,8 +717,9 @@ const useGlobalIssueActions = () => {
 
   const updateFilters = useCallback(
     async (projectId: string, filterType: TSupportedFilterTypeForUpdate, filters: TSupportedFilterForUpdate) => {
-      if (!globalViewId || !workspaceSlug) return;
-      return await issuesFilter.updateFilters(workspaceSlug, projectId, filterType, filters, globalViewId);
+      const activeViewId = globalViewId || "all-issues";
+      if (!workspaceSlug) return;
+      return await issuesFilter.updateFilters(workspaceSlug, projectId, filterType, filters, activeViewId);
     },
     [issuesFilter.updateFilters, globalViewId, workspaceSlug]
   );
@@ -730,7 +733,7 @@ const useGlobalIssueActions = () => {
       removeIssue,
       updateFilters,
     }),
-    [createIssue, updateIssue, removeIssue, updateFilters]
+    [fetchIssues, fetchNextIssues, createIssue, updateIssue, removeIssue, updateFilters]
   );
 };
 

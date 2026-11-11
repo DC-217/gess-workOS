@@ -137,6 +137,16 @@ export const ISSUE_DISPLAY_FILTERS_BY_PAGE: TIssueFiltersToDisplayByPageType = {
           values: ["show_empty_groups"],
         },
       },
+      calendar: {
+        display_properties: ["key", "issue_type"],
+        display_filters: {
+          type: ["active", "backlog"],
+        },
+        extra_options: {
+          access: true,
+          values: ["sub_issue"],
+        },
+      },
     },
   },
   archived_issues: {
@@ -199,6 +209,16 @@ export const ISSUE_DISPLAY_FILTERS_BY_PAGE: TIssueFiltersToDisplayByPageType = {
         extra_options: {
           access: false,
           values: [],
+        },
+      },
+      calendar: {
+        display_properties: ["key", "issue_type"],
+        display_filters: {
+          type: ["active", "backlog"],
+        },
+        extra_options: {
+          access: true,
+          values: ["sub_issue"],
         },
       },
     },

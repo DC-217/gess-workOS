@@ -47,6 +47,8 @@ class WorkspaceUserPreferenceViewSet(BaseAPIView):
                                 True
                                 if key
                                 in [
+                                    WorkspaceUserPreference.UserPreferenceKeys.VIEWS,
+                                    WorkspaceUserPreference.UserPreferenceKeys.CALENDAR,
                                     WorkspaceUserPreference.UserPreferenceKeys.DRAFTS,
                                     WorkspaceUserPreference.UserPreferenceKeys.YOUR_WORK,
                                     WorkspaceUserPreference.UserPreferenceKeys.STICKIES,

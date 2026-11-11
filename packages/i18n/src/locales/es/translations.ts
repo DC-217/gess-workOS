@@ -5,6 +5,7 @@
  */
 
 export default {
+  calendar: "Calendario",
   sidebar: {
     projects: "Proyectos",
     pages: "Páginas",
