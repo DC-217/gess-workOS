@@ -1,1 +1,6 @@
+# Normalize text files to LF both in the repository and in the working tree.
+# Prevents Windows editors (CRLF) from inflating every diff into a full-file rewrite.
+* text=auto eol=lf
+
+# Shell scripts must always be LF.
 *.sh text eol=lf
