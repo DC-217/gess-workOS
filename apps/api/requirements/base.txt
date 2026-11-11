@@ -18,6 +18,11 @@ django-redis==5.4.0
 django-cors-headers==4.3.1
 # celery
 celery==5.4.0
+# kombu pinned: 5.7+ requires redis-py>=6.4.0 via a runtime check (the redis
+# dependency is an optional extra, so pip does not enforce it at install time).
+# redis is pinned to 5.0.4 below, so an unpinned kombu resolves to 5.7.0 and
+# crashes at startup with kombu.exceptions.VersionMismatch.
+kombu==5.4.2
 django_celery_beat==2.6.0
 django-celery-results==2.5.1
 # file serve
