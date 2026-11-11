@@ -28,6 +28,7 @@ export default defineConfig(() => ({
       "next/link": path.resolve(__dirname, "app/compat/next/link.tsx"),
       "next/navigation": path.resolve(__dirname, "app/compat/next/navigation.ts"),
       "next/script": path.resolve(__dirname, "app/compat/next/script.tsx"),
+      "intl-messageformat": path.resolve(__dirname, "../../packages/i18n/node_modules/intl-messageformat"),
     },
     dedupe: ["react", "react-dom", "@headlessui/react"],
   },
