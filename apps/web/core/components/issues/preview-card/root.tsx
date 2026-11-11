@@ -13,8 +13,6 @@ import type { TIssue, TStateGroups } from "@plane/types";
 import { useModule } from "@/hooks/store/use-module";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
-// plane web imports
-import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local imports
 import { WorkItemPreviewCardDate } from "./date";
 
@@ -58,15 +56,6 @@ export const WorkItemPreviewCard = observer(function WorkItemPreviewCard(props: 
     <div className="max-w-sm min-w-72 space-y-2 rounded-lg border-[0.5px] border-strong bg-surface-1 p-3 shadow-raised-200">
       <div className="flex items-center justify-between gap-2 text-secondary">
         <div className="flex min-w-0 items-center gap-1.5 truncate text-11">
-          <IssueIdentifier
-            size="xs"
-            variant="secondary"
-            projectId={projectId}
-            projectIdentifier={projectIdentifier}
-            issueSequenceId={workItem.sequence_id}
-            issueTypeId={workItem.type_id}
-          />
-          <span className="text-placeholder">-</span>
           <span className={`truncate ${moduleNames ? "text-secondary" : "text-tertiary"}`}>
             {moduleNames || t("module.no_module")}
           </span>
