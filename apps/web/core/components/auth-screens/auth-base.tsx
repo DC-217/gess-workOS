@@ -8,7 +8,10 @@ type AuthBaseProps = {
 
 export function AuthBase({ authType }: AuthBaseProps) {
   return (
-    <div className="auth-page-container font-sans relative flex min-h-screen w-screen flex-row overflow-hidden bg-white text-black">
+    <div
+      data-theme="light"
+      className="auth-page-container font-sans relative flex min-h-screen w-screen flex-row overflow-hidden bg-white text-black"
+    >
       {/* Left side panel: 50% width, fully centered form */}
       <div className="relative z-10 flex h-screen w-full flex-col items-center justify-center p-10 lg:w-[50%]">
         <div className="flex w-full max-w-[440px] flex-col gap-6">

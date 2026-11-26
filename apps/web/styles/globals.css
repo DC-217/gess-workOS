@@ -211,6 +211,17 @@
   font-weight: 500 !important;
   font-size: 14px !important;
   color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+.auth-page-container input {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.auth-page-container .bg-surface-1,
+.auth-page-container .bg-layer-2 {
+  background-color: #ffffff !important;
 }
 
 .auth-page-container input::placeholder {
